@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuarios {
+  id_usuario Int       @id @default(autoincrement())
+  correo     String    @db.VarChar(250)
+  nombre     String    @db.VarChar(100)
+  usuario    String    @db.VarChar(100)
+  contrasena String    @db.VarChar(300)
+  Listas     Listas[]
+  Recetas    Recetas[]
+  Favoritos  Favoritos[]
+  Resena     Resena[]
+}
+
+model Listas {
+  id_lista   Int       @id @default(autoincrement())
+  id_usuario Int
+  item       String    @db.VarChar(300)
+  Usuarios   Usuarios  @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+model Recetas {
+  id_receta   Int          @id @default(autoincrement())
+  id_usuario  Int
+  descripcion String       @db.VarChar(200)
+  porciones   Int
+  tiempo      Int
+  video       String       @db.VarChar(300)
+  img         String       @db.VarChar(300)
+  Usuarios    Usuarios     @relation(fields: [id_usuario], references: [id_usuario])
+  Ingredientes Ingredientes[]
+  Pasos       Pasos[]
+  Favoritos   Favoritos[]
+  Resena      Resena[]
+}
+
+model Ingredientes {
+  id_ingrediente Int      @id @default(autoincrement())
+  id_receta      Int
+  ingrediente    String   @db.VarChar(300)
+  Recetas        Recetas  @relation(fields: [id_receta], references: [id_receta])
+}
+
+model Pasos {
+  id_paso  Int      @id @default(autoincrement())
+  id_receta Int
+  paso     String   @db.VarChar(300)
+  orden    Int
+  Recetas  Recetas  @relation(fields: [id_receta], references: [id_receta])
+}
+
+model Favoritos {
+  id_favorito Int      @id @default(autoincrement())
+  id_receta   Int
+  id_usuario  Int
+  orden       Int
+  Recetas     Recetas  @relation(fields: [id_receta], references: [id_receta])
+  Usuarios    Usuarios @relation(fields: [id_usuario], references: [id_usuario])
+}
+
+model Resena {
+  id_resena  Int      @id @default(autoincrement())
+  id_receta  Int
+  id_usuario Int
+  valor      Int
+  Recetas    Recetas  @relation(fields: [id_receta], references: [id_receta])
+  Usuarios   Usuarios @relation(fields: [id_usuario], references: [id_usuario])
+}
+
