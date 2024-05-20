@@ -17,6 +17,7 @@ router.get("/obtenerfav", async (req, res) => {
     const { idUsuario, idReceta } = req.body;
 
     try {
+
         const favoritoExistente = await prisma.favoritos.findFirst({
             where: {
                 id_usuario: parseInt(idUsuario),
@@ -25,52 +26,41 @@ router.get("/obtenerfav", async (req, res) => {
         });
 
         if (favoritoExistente) {
-            return res.status(202).json({ mensaje: "La receta ya está en favoritos" });
+
+            await prisma.favoritos.delete({
+                where: {
+                    id_favorito: favoritoExistente.id_favorito
+                }
+            });
+            res.status(200).json({ mensaje: "La receta se eliminó de favoritos" });
+        } else {
+
+            const ultimoOrden = await prisma.favoritos.findFirst({
+                where: {
+                    id_usuario: parseInt(idUsuario)
+                },
+                orderBy: {
+                    orden: 'desc'
+                },
+                select: {
+                    orden: true
+                }
+            });
+        
+            const nuevoOrden = ultimoOrden ? ultimoOrden.orden + 1 : 1;
+        
+            await prisma.favoritos.create({
+                data: {
+                    id_usuario: parseInt(idUsuario),
+                    id_receta: parseInt(idReceta),
+                    orden: nuevoOrden
+                }
+            });
+            res.status(201).json({ mensaje: "Receta agregada a favoritos" });
         }
-
-    
-        const ultimoOrden = await prisma.favoritos.findFirst({
-            where: {
-                id_usuario: parseInt(idUsuario)
-            },
-            orderBy: {
-                orden: 'desc'
-            },
-            select: {
-                orden: true
-            }
-        });
-
-        const nuevoOrden = ultimoOrden ? ultimoOrden.orden + 1 : 1;
-
-        await prisma.favoritos.create({
-            data: {
-                id_usuario: parseInt(idUsuario),
-                id_receta: parseInt(idReceta),
-                orden: nuevoOrden  
-            }
-        });
-
-        res.status(201).json({ mensaje: "Receta agregada a favoritos" });
+        
     } catch (error) {
-        console.error("Error al agregar receta a favoritos:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
-    }
-});
-
-router.delete("/eliminarfav/:idf", async (req, res) => {
-    const { idf } = req.params;
-
-    try {
-        await prisma.favoritos.delete({
-            where: {
-                id_favorito: parseInt(idf)
-            }
-        });
-
-        res.status(200).json({ mensaje: "Receta eliminada de favoritos" });
-    } catch (error) {
-        console.error("Error al eliminar receta de favoritos:", error);
+        console.error("Error al agregar/recuperar receta de favoritos:", error);
         res.status(500).json({ error: "Error interno del servidor" });
     }
 });
