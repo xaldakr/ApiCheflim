@@ -53,30 +53,36 @@ router.post("/createuser", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { contrasena, correo } = req.body;
-    const datologin = await Promise.race([
-      prisma.usuarios.findFirst({
-        where: {
-          correo: correo,
-          contrasena: contrasena,
-        },
-      }),
-      new Promise(
-        (resolve, reject) =>
-          setTimeout(() => reject(new Error("Timeout")), 8000) // Timeout de 8 segundos
-      ),
-    ]);
-
-    if (datologin !== null) {
-      const datosjson = {
-        id_usuario: datologin.id_usuario,
-        correo: datologin.correo,
-        nombre: datologin.nombre,
-        usuario: datologin.usuario,
-      };
-      res.json(datosjson);
+    const { contrasena, correo } = await req.body;
+    if (!contrasena || !correo) {
+      res
+        .status(400)
+        .json({ error: "No se han mandado correctamente los datos" });
     } else {
-      res.status(404).json({ error: "Usuario no encontrado" });
+      const datologin = await Promise.race([
+        prisma.usuarios.findFirst({
+          where: {
+            correo: correo,
+            contrasena: contrasena,
+          },
+        }),
+        new Promise(
+          (resolve, reject) =>
+            setTimeout(() => reject(new Error("Timeout")), 8000) // Timeout de 8 segundos
+        ),
+      ]);
+
+      if (datologin !== null) {
+        const datosjson = {
+          id_usuario: datologin.id_usuario,
+          correo: datologin.correo,
+          nombre: datologin.nombre,
+          usuario: datologin.usuario,
+        };
+        res.json(datosjson);
+      } else {
+        res.status(404).json({ error: "Usuario no encontrado" });
+      }
     }
   } catch (error) {
     if (error.message === "Timeout") {
