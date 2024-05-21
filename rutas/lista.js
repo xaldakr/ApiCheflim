@@ -14,7 +14,7 @@ router.get("/obtenerlista", async (req, res) => {
   }
 });
 
-router.get("/obtenerlista/:idUsuario", async (req, res) => {
+router.get("/obtenerlista/:id", async (req, res) => {
   const { idUsuario } = req.params;
 
   try {
@@ -100,10 +100,8 @@ router.delete("/eliminaritem/:id", async (req, res) => {
     });
 
     if (deleteResult.count === 1) {
-      // La eliminación fue exitosa
       res.status(200).json({ mensaje: "Elemento eliminado correctamente" });
     } else {
-      // No se encontró el elemento para eliminar
       res
         .status(404)
         .json({ error: "El elemento no se encontró para eliminar" });

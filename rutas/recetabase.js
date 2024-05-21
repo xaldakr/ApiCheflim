@@ -243,4 +243,97 @@ router.post("/createreceta", async (req, res) => {
   }
 });
 
+router.put("/updatereceta/:id", async (req, res) => {
+  const { id } = req.params;
+  const { ingredientes, pasos, ...resto } = req.body;
+
+  try {
+    const recetaId = parseInt(id);
+
+    await prisma.ingredientes.deleteMany({
+      where: {
+        id_receta: recetaId,
+      },
+    });
+
+    await prisma.pasos.deleteMany({
+      where: {
+        id_receta: recetaId,
+      },
+    });
+
+    const updatedReceta = await prisma.recetas.update({
+      where: {
+        id_receta: recetaId,
+      },
+      data: {
+        ...resto,
+      },
+    });
+
+    await Promise.all(
+      ingredientes.map(async (ingrediente) => {
+        await prisma.ingredientes.create({
+          data: {
+            id_receta: recetaId,
+            ingrediente: ingrediente.nombre,
+          },
+        });
+      })
+    );
+    await Promise.all(
+      pasos.map(async (paso) => {
+        await prisma.pasos.create({
+          data: {
+            id_receta: recetaId,
+            paso: paso.descripcion,
+            orden: paso.orden,
+          },
+        });
+      })
+    );
+
+    res
+      .status(200)
+      .json({ mensaje: "Receta actualizada con éxito", id_receta: recetaId });
+  } catch (error) {
+    console.error("Error al actualizar la receta:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+router.delete("/deletereceta/:id", async (req, res) => {
+  const { id } = req.params;
+  const { ingredientes, pasos, ...resto } = req.body;
+
+  try {
+    const recetaId = parseInt(id);
+
+    await prisma.ingredientes.deleteMany({
+      where: {
+        id_receta: recetaId,
+      },
+    });
+
+    await prisma.pasos.deleteMany({
+      where: {
+        id_receta: recetaId,
+      },
+    });
+
+    await prisma.recetas.deleteMany({
+      where: {
+        id_receta: recetaId,
+      },
+    });
+
+    res
+      .status(200)
+      .json({ mensaje: "Receta eliminada con éxito", id_receta: recetaId });
+  } catch (error) {
+    console.error("Error al actualizar la receta:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
 export default router;
