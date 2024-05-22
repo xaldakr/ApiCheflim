@@ -54,6 +54,7 @@ router.post("/createuser", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { contrasena, correo } = await req.body;
+
     if (!contrasena || !correo) {
       res
         .status(400)

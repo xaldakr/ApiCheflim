@@ -101,11 +101,9 @@ router.delete("/borrarArchivo/:idReceta", async (req, res) => {
     });
 
     if (!receta) {
-      return res
-        .status(404)
-        .json({
-          error: `No se encontró ninguna receta con el ID '${idReceta}'`,
-        });
+      return res.status(404).json({
+        error: `No se encontró ninguna receta con el ID '${idReceta}'`,
+      });
     }
 
     const nombreArchivo = receta.img;
@@ -124,22 +122,29 @@ router.delete("/borrarArchivo/:idReceta", async (req, res) => {
       console.log(
         `El archivo asociado a la receta con ID '${idReceta}' no existe`
       );
-      res
-        .status(404)
-        .json({
-          error: `El archivo asociado a la receta con ID '${idReceta}' no existe`,
-        });
+      res.status(404).json({
+        error: `El archivo asociado a la receta con ID '${idReceta}' no existe`,
+      });
     }
   } catch (error) {
     console.error(
       `Error al borrar el archivo asociado a la receta con ID '${idReceta}':`,
       error
     );
-    res
-      .status(500)
-      .json({
-        error: `Error al borrar el archivo asociado a la receta con ID '${idReceta}'`,
-      });
+    res.status(500).json({
+      error: `Error al borrar el archivo asociado a la receta con ID '${idReceta}'`,
+    });
+  }
+});
+
+router.get("/obtenerimg/:filename", (req, res) => {
+  const { filename } = req.params;
+  const imagePath = path.join(__dirname, "../media", filename);
+
+  if (fs.existsSync(imagePath)) {
+    res.sendFile(imagePath);
+  } else {
+    res.status(404).send("La imagen no existe");
   }
 });
 

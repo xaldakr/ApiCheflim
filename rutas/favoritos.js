@@ -13,6 +13,7 @@ router.get("/obtenerfav", async (req, res) => {
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
+
 router.post("/addfav", async (req, res) => {
   const { idUsuario, idReceta } = req.body;
 
