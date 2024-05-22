@@ -80,4 +80,53 @@ router.delete("/eliminarfav/:idf", async (req, res) => {
   }
 });
 
+router.post("/resena", async (req, res) => {
+  const { id_usuario, id_receta, valor } = req.body;
+
+  if (valor < 1 || valor > 5) {
+    return res.status(400).send("El valor debe estar entre 1 y 5.");
+  }
+
+  try {
+    const existenteResena = await prisma.resena.findFirst({
+      where: {
+        id_usuario: id_usuario,
+        id_receta: id_receta,
+      },
+    });
+
+    if (existenteResena && existenteResena.valor === valor) {
+      return res
+        .status(409)
+        .json({ message: "Ya existe reseña con el mismo valor." });
+    }
+
+    if (existenteResena && existenteResena.valor !== valor) {
+      const actualizadaResena = await prisma.resena.update({
+        where: {
+          id_resena: existenteResena.id_resena,
+        },
+        data: {
+          valor: valor,
+        },
+      });
+      return res
+        .status(200)
+        .json({ message: "Resena actualizada correctamente." });
+    }
+
+    const nuevaResena = await prisma.resena.create({
+      data: {
+        id_usuario: id_usuario,
+        id_receta: id_receta,
+        valor: valor,
+      },
+    });
+    res.status(201).json({ message: "Resena creada correctamente." });
+  } catch (error) {
+    console.error("Error en la gestión de reseñas: ", error);
+    res.status(500).send("Error al procesar la reseña.");
+  }
+});
+
 export default router;
