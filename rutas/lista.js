@@ -15,12 +15,12 @@ router.get("/obtenerlista", async (req, res) => {
 });
 
 router.get("/obtenerlista/:id", async (req, res) => {
-  const { idUsuario } = req.params;
+  const { id } = req.params;
 
   try {
     const detalleLista = await prisma.listas.findMany({
       where: {
-        id_usuario: parseInt(idUsuario),
+        id_usuario: parseInt(id),
       },
     });
 

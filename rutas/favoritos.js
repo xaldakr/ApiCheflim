@@ -14,8 +14,32 @@ router.get("/obtenerfav", async (req, res) => {
   }
 });
 
+router.get("/obtenerfavid/:id/:iduser", async (req, res) => {
+  const { id, iduser } = req.params;
+
+  try {
+    const favoritoExistente = await prisma.favoritos.findMany({
+      where: {
+        id_receta: parseInt(id),
+        id_usuario: parseInt(iduser),
+      },
+    });
+
+    if (favoritoExistente.length > 0) {
+      res.status(200).json({ existe: 1 });
+    } else {
+      res.status(200).json({ existe: 2 });
+    }
+  } catch (error) {
+    console.error("Error al consultar favoritos:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
 router.post("/addfav", async (req, res) => {
   const { idUsuario, idReceta } = req.body;
+
+  console.log(req.body);
 
   try {
     const favoritoExistente = await prisma.favoritos.findFirst({
@@ -84,10 +108,13 @@ router.post("/resena", async (req, res) => {
   const { id_usuario, id_receta, valor } = req.body;
 
   if (valor < 1 || valor > 5) {
-    return res.status(400).send("El valor debe estar entre 1 y 5.");
+    return res
+      .status(400)
+      .json({ mensaje: "El valor debe estar entre 1 y 5." });
   }
 
   try {
+    console.log(req.body);
     const existenteResena = await prisma.resena.findFirst({
       where: {
         id_usuario: id_usuario,
@@ -95,14 +122,9 @@ router.post("/resena", async (req, res) => {
       },
     });
 
-    if (existenteResena && existenteResena.valor === valor) {
-      return res
-        .status(409)
-        .json({ message: "Ya existe reseña con el mismo valor." });
-    }
-
-    if (existenteResena && existenteResena.valor !== valor) {
-      const actualizadaResena = await prisma.resena.update({
+    if (existenteResena) {
+      console.log("Error aqui", existenteResena.id_resena);
+      await prisma.resena.update({
         where: {
           id_resena: existenteResena.id_resena,
         },
@@ -112,20 +134,20 @@ router.post("/resena", async (req, res) => {
       });
       return res
         .status(200)
-        .json({ message: "Resena actualizada correctamente." });
+        .json({ mensaje: "Reseña actualizada", valor: valor });
+    } else {
+      await prisma.resena.create({
+        data: {
+          id_usuario: id_usuario,
+          id_receta: id_receta,
+          valor: valor,
+        },
+      });
+      return res.status(201).json({ mensaje: "Reseña creada", valor: valor });
     }
-
-    const nuevaResena = await prisma.resena.create({
-      data: {
-        id_usuario: id_usuario,
-        id_receta: id_receta,
-        valor: valor,
-      },
-    });
-    res.status(201).json({ message: "Resena creada correctamente." });
   } catch (error) {
     console.error("Error en la gestión de reseñas: ", error);
-    res.status(500).send("Error al procesar la reseña.");
+    res.status(500).json({ mensaje: "Error al procesar la reseña." });
   }
 });
 
