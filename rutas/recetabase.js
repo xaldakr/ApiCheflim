@@ -309,6 +309,18 @@ router.delete("/deletereceta/:id", async (req, res) => {
   try {
     const recetaId = parseInt(id);
 
+    await prisma.favoritos.deleteMany({
+      where: {
+        id_receta: recetaId,
+      },
+    });
+
+    await prisma.recetas.deleteMany({
+      where: {
+        id_receta: recetaId,
+      },
+    });
+
     await prisma.ingredientes.deleteMany({
       where: {
         id_receta: recetaId,
