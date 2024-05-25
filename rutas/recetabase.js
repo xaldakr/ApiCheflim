@@ -207,7 +207,7 @@ router.post("/createreceta", async (req, res) => {
   if (!req.body.img) {
     req.body.img = "";
   }
-  const { ingredientes, pasos, ...resto } = req.body;
+  const { ingredientes, pasos, id_receta, ...resto } = req.body;
 
   try {
     const newReceta = await prisma.recetas.create({
