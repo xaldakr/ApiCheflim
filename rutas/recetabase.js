@@ -164,7 +164,11 @@ router.get("/recetadetalle/:userId/:recetaId", async (req, res) => {
           where: { id_usuario: userIdInt },
           select: { valor: true },
         },
-        Pasos: true,
+        Pasos: {
+          orderBy: {
+            orden: "asc",
+          },
+        },
       },
     });
 
@@ -217,7 +221,7 @@ router.post("/createreceta", async (req, res) => {
       ingredientes.map(async (ingrediente) => {
         await prisma.ingredientes.create({
           data: {
-            id_receta: recetaId,
+            id_receta: parseInt(recetaId),
             ingrediente: ingrediente.nombre,
           },
         });
@@ -228,15 +232,15 @@ router.post("/createreceta", async (req, res) => {
       pasos.map(async (paso) => {
         await prisma.pasos.create({
           data: {
-            id_receta: recetaId,
+            id_receta: parseInt(recetaId),
             paso: paso.descripcion,
-            orden: paso.orden,
+            orden: parseInt(paso.orden),
           },
         });
       })
     );
 
-    res.status(201).json({ id_receta: recetaId });
+    res.status(201).json({ id_receta: parseInt(recetaId) });
   } catch (error) {
     console.error("Error al crear la receta:", error);
     res.status(500).json({ error: "Error interno del servidor" });

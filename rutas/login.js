@@ -101,6 +101,33 @@ router.patch("/edituser/:id", async (req, res) => {
   try {
     const { correo, nombre, usuario } = req.body;
     const { id } = req.params;
+
+    const correoExistente = await prisma.usuarios.findFirst({
+      where: {
+        correo,
+        NOT: {
+          id_usuario: +id,
+        },
+      },
+    });
+
+    if (correoExistente) {
+      return res.status(402).json({ error: "Correo ya existente" });
+    }
+
+    const usuarioExistente = await prisma.usuarios.findFirst({
+      where: {
+        usuario,
+        NOT: {
+          id_usuario: +id,
+        },
+      },
+    });
+
+    if (usuarioExistente) {
+      return res.status(402).json({ error: "Usuario ya existente" });
+    }
+
     const editlogin = await prisma.usuarios.update({
       where: {
         id_usuario: +id,
@@ -119,10 +146,10 @@ router.patch("/edituser/:id", async (req, res) => {
       nombre: editlogin.nombre,
       usuario: editlogin.usuario,
     };
+
     res.json(datosjson);
   } catch (error) {
     if (error.code === "P2025") {
-      // Error code for record not found
       res.status(404).json({ error: "Usuario no encontrado" });
     } else {
       console.error(error);

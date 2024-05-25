@@ -92,6 +92,8 @@ router.post("/anadirlista", async (req, res) => {
 
 router.delete("/eliminaritem/:id", async (req, res) => {
   const { id } = req.params;
+
+  console.log(id);
   try {
     const deleteResult = await prisma.listas.delete({
       where: {
@@ -99,7 +101,7 @@ router.delete("/eliminaritem/:id", async (req, res) => {
       },
     });
 
-    if (deleteResult.count === 1) {
+    if (deleteResult.count == 1) {
       res.status(200).json({ mensaje: "Elemento eliminado correctamente" });
     } else {
       res
