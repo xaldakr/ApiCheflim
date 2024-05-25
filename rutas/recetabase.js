@@ -249,7 +249,7 @@ router.post("/createreceta", async (req, res) => {
 
 router.put("/updatereceta/:id", async (req, res) => {
   const { id } = req.params;
-  const { ingredientes, pasos, ...resto } = req.body;
+  const { ingredientes, pasos, id_receta, ...resto } = req.body;
 
   try {
     const recetaId = parseInt(id);
