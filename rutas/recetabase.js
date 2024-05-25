@@ -207,7 +207,17 @@ router.post("/createreceta", async (req, res) => {
   if (!req.body.img) {
     req.body.img = "";
   }
-  const { ingredientes, pasos, id_receta, ...resto } = req.body;
+  const {
+    Ingredientes,
+    Pasos,
+    id_receta,
+    Resena,
+    Usuarios,
+    promedioResenas,
+    cantidadResenas,
+    userResena,
+    ...resto
+  } = req.body;
 
   try {
     const newReceta = await prisma.recetas.create({
@@ -218,7 +228,7 @@ router.post("/createreceta", async (req, res) => {
 
     const recetaId = newReceta.id_receta;
     await Promise.all(
-      ingredientes.map(async (ingrediente) => {
+      Ingredientes.map(async (ingrediente) => {
         await prisma.ingredientes.create({
           data: {
             id_receta: parseInt(recetaId),
@@ -229,7 +239,7 @@ router.post("/createreceta", async (req, res) => {
     );
 
     await Promise.all(
-      pasos.map(async (paso) => {
+      Pasos.map(async (paso) => {
         await prisma.pasos.create({
           data: {
             id_receta: parseInt(recetaId),
@@ -249,7 +259,17 @@ router.post("/createreceta", async (req, res) => {
 
 router.put("/updatereceta/:id", async (req, res) => {
   const { id } = req.params;
-  const { ingredientes, pasos, id_receta, ...resto } = req.body;
+  const {
+    Ingredientes,
+    Pasos,
+    id_receta,
+    Resena,
+    Usuarios,
+    promedioResenas,
+    cantidadResenas,
+    userResena,
+    ...resto
+  } = req.body;
 
   try {
     const recetaId = parseInt(id);
@@ -276,7 +296,7 @@ router.put("/updatereceta/:id", async (req, res) => {
     });
 
     await Promise.all(
-      ingredientes.map(async (ingrediente) => {
+      Ingredientes.map(async (ingrediente) => {
         await prisma.ingredientes.create({
           data: {
             id_receta: recetaId,
@@ -286,7 +306,7 @@ router.put("/updatereceta/:id", async (req, res) => {
       })
     );
     await Promise.all(
-      pasos.map(async (paso) => {
+      Pasos.map(async (paso) => {
         await prisma.pasos.create({
           data: {
             id_receta: recetaId,
