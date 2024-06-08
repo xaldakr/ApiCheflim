@@ -43,6 +43,7 @@ router.post("/subir/:id", upload.single("imagen"), async (req, res) => {
       res.json({ mensaje: "Imagen subida existosamente", imageUrl });
     } else {
       res.status(404).json({ error: "Receta no encontrada" });
+      console.log("Algo paso aca");
     }
   } catch (error) {
     console.error("Error al subir la imagen:", error);
@@ -63,6 +64,7 @@ router.post("/resubir/:id", upload.single("imagen"), async (req, res) => {
       },
     });
 
+    console.log(recetaAnterior);
     if (!recetaAnterior) {
       return res.status(404).json({ error: "Receta no encontrada" });
     }
@@ -111,6 +113,7 @@ router.delete("/borrarArchivo/:idReceta", async (req, res) => {
     const rutaArchivo = path.join(__dirname, nombreArchivo);
 
     if (fs.existsSync(rutaArchivo)) {
+      console.log(rutaArchivo);
       fs.unlinkSync(rutaArchivo);
       console.log(
         `Archivo asociado a la receta con ID '${idReceta}' borrado exitosamente`

@@ -228,23 +228,23 @@ router.post("/createreceta", async (req, res) => {
 
     const recetaId = newReceta.id_receta;
     await Promise.all(
-      Ingredientes.map(async (ingrediente) => {
+      Ingredientes.map(async (ingre) => {
         await prisma.ingredientes.create({
           data: {
             id_receta: parseInt(recetaId),
-            ingrediente: ingrediente.nombre,
+            ingrediente: ingre.ingrediente,
           },
         });
       })
     );
 
     await Promise.all(
-      Pasos.map(async (paso) => {
+      Pasos.map(async (pas) => {
         await prisma.pasos.create({
           data: {
             id_receta: parseInt(recetaId),
-            paso: paso.descripcion,
-            orden: parseInt(paso.orden),
+            paso: pas.paso,
+            orden: parseInt(pas.orden),
           },
         });
       })
@@ -296,22 +296,22 @@ router.put("/updatereceta/:id", async (req, res) => {
     });
 
     await Promise.all(
-      Ingredientes.map(async (ingrediente) => {
+      Ingredientes.map(async (ingre) => {
         await prisma.ingredientes.create({
           data: {
             id_receta: recetaId,
-            ingrediente: ingrediente.nombre,
+            ingrediente: ingre.ingrediente,
           },
         });
       })
     );
     await Promise.all(
-      Pasos.map(async (paso) => {
+      Pasos.map(async (pas) => {
         await prisma.pasos.create({
           data: {
             id_receta: recetaId,
-            paso: paso.descripcion,
-            orden: paso.orden,
+            paso: pas.paso,
+            orden: parseInt(pas.orden),
           },
         });
       })
@@ -322,6 +322,7 @@ router.put("/updatereceta/:id", async (req, res) => {
       .json({ mensaje: "Receta actualizada con éxito", id_receta: recetaId });
   } catch (error) {
     console.error("Error al actualizar la receta:", error);
+    console.log(error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -339,7 +340,7 @@ router.delete("/deletereceta/:id", async (req, res) => {
       },
     });
 
-    await prisma.recetas.deleteMany({
+    await prisma.resena.deleteMany({
       where: {
         id_receta: recetaId,
       },
